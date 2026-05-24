@@ -495,7 +495,9 @@
                         <h3 class="text-2xl font-bold text-gold">Preencha seus dados para inscrição</h3>
                     </div>
                     
-                    <form action="URL_DO_SEU_WEBHOOK_N8N_AQUI" method="POST" class="grid gap-6 md:grid-cols-2">
+                    <div id="feedbackInscricao" class="hidden md:col-span-2 mb-2 rounded-lg px-4 py-3 text-sm font-medium text-center"></div>
+
+                    <form id="formInscricaoLP" class="grid gap-6 md:grid-cols-2" novalidate>
                         
                         <div class="md:col-span-2">
                             <label for="nome" class="mb-1 block text-sm font-medium">Nome Completo*</label>
@@ -526,7 +528,8 @@
                             <label for="municipio" class="mb-1 block text-sm font-medium">Município*</label>
                             <input type="text" id="municipio" name="municipio" required class="w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white placeholder-navy-foreground/40 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold" placeholder="Cidade / Estado">
                         </div>
-
+                        <!-- ID da campanha no CRM (Funil de Vendas → Campanhas). Pode sobrescrever com ?curso_id=123 na URL -->
+                        <input type="hidden" name="curso_id" id="curso_id" value="">
                         <div class="md:col-span-2">
                             <label class="mb-2 block text-sm font-medium">Escolha o curso de seu interesse*</label>
                             <label class="flex items-center gap-3 rounded-md border border-gold/40 bg-gold/10 px-4 py-3 cursor-not-allowed">
@@ -542,7 +545,7 @@
                         </div>
 
                         <div class="md:col-span-2 mt-4 text-center">
-                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-gold px-8 py-4 text-base font-bold text-navy shadow-gold transition hover:brightness-105">
+                            <button type="submit" id="btnEnviarInscricao" class="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gradient-gold px-8 py-4 text-base font-bold text-navy shadow-gold transition hover:brightness-105 disabled:opacity-60 disabled:cursor-not-allowed">
                                 Enviar meus dados <i data-lucide="send" class="h-5 w-5"></i>
                             </button>
                             <p class="mt-4 text-xs text-navy-foreground/60">Seus dados estão protegidos conosco.</p>
@@ -695,6 +698,19 @@
     </a>
 
     <script>
+        // ========== CONFIGURAÇÃO CRM ==========
+        // URL do servidor (mesma do CRM: VITE_API_URL). Produção: https://api.danieltech-automa.shop
+        const API_URL_CRM = 'https://api.danieltech-automa.shop';
+        // ID numérico da campanha no CRM (ex.: curso "IA na Prática..."). Veja em Campanhas ou use ?curso_id= na URL
+        const CURSO_ID_PADRAO = '';
+
+        (function aplicarConfigCampanha() {
+            const params = new URLSearchParams(window.location.search);
+            const daUrl = params.get('curso_id');
+            const campo = document.getElementById('curso_id');
+            if (campo) campo.value = daUrl || CURSO_ID_PADRAO || campo.value;
+        })();
+
         // Inicializa os ícones do Lucide
         lucide.createIcons();
 
@@ -724,6 +740,69 @@
         document.getElementById('telefone').addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+
+        function mostrarFeedback(mensagem, sucesso) {
+            const fb = document.getElementById('feedbackInscricao');
+            if (!fb) return;
+            fb.textContent = mensagem;
+            fb.className = 'md:col-span-2 mb-2 rounded-lg px-4 py-3 text-sm font-medium text-center ' +
+                (sucesso ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200');
+            fb.classList.remove('hidden');
+            fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.getElementById('formInscricaoLP').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const captcha = document.getElementById('captcha');
+            if (parseInt(captcha.value, 10) !== 11) {
+                mostrarFeedback('A resposta da soma (6 + 5) está incorreta.', false);
+                return;
+            }
+
+            const cursoId = document.getElementById('curso_id').value.trim();
+            if (!cursoId || cursoId === 'ID_DA_CAMPANHA_AQUI') {
+                mostrarFeedback('Configure o ID da campanha no CRM (curso_id) antes de publicar esta página.', false);
+                return;
+            }
+
+            const btn = document.getElementById('btnEnviarInscricao');
+            const textoOriginal = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Enviando...';
+
+            const payload = {
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                formacao: document.getElementById('formacao').value.trim(),
+                cargo: document.getElementById('cargo').value.trim(),
+                municipio: document.getElementById('municipio').value.trim(),
+                curso_id: parseInt(cursoId, 10),
+                modulos_ids: []
+            };
+
+            try {
+                const res = await fetch(API_URL_CRM + '/webhook/inscricao-externa', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.erro || 'Não foi possível enviar a inscrição.');
+
+                mostrarFeedback(data.mensagem || 'Inscrição confirmada! Em breve entraremos em contato.', true);
+                e.target.reset();
+                document.getElementById('curso_id').value = cursoId;
+                captcha.value = '';
+            } catch (err) {
+                mostrarFeedback(err.message || 'Erro de conexão. Tente novamente em instantes.', false);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = textoOriginal;
+                lucide.createIcons();
+            }
         });
     </script>
 </body>
