@@ -63,6 +63,19 @@
                 -webkit-appearance: none;
                 margin: 0;
             }
+            select.form-select-lp {
+                color: #f8fafc;
+                background-color: #1e293b;
+                color-scheme: dark;
+            }
+            select.form-select-lp option {
+                background-color: #1e293b;
+                color: #f8fafc;
+            }
+            select.form-select-lp:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
         }
         @layer utilities {
             .bg-gradient-gold {
@@ -526,14 +539,14 @@
 
                         <div>
                             <label for="uf" class="mb-1 block text-sm font-medium">Estado*</label>
-                            <select id="uf" name="uf" required class="w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold">
+                            <select id="uf" name="uf" required class="form-select-lp w-full rounded-md border border-navy-foreground/20 bg-[#1e293b] px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold">
                                 <option value="">Carregando...</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="municipio" class="mb-1 block text-sm font-medium">Município*</label>
-                            <select id="municipio" name="municipio" required disabled class="w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold disabled:opacity-50">
+                            <select id="municipio" name="municipio" required disabled class="form-select-lp w-full rounded-md border border-navy-foreground/20 bg-[#1e293b] px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold disabled:opacity-50">
                                 <option value="">Selecione o estado</option>
                             </select>
                         </div>
