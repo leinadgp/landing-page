@@ -553,6 +553,14 @@
                         <!-- ID da campanha no CRM (Funil de Vendas → Campanhas). Pode sobrescrever com ?curso_id=123 na URL -->
                         <input type="hidden" name="curso_id" id="curso_id" value="">
                         <div class="md:col-span-2">
+                            <label for="qtd_participantes" class="mb-1 block text-sm font-medium">Quantas pessoas participarão do curso?*</label>
+                            <input type="number" id="qtd_participantes" name="qtd_participantes" min="1" max="30" value="1" required class="w-full max-w-xs rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold">
+                            <p class="mt-1 text-xs text-navy-foreground/60">A 1ª pessoa é o formulário acima. Se forem mais, preencha os dados de cada participante abaixo.</p>
+                        </div>
+
+                        <div id="containerInscritosExtras" class="md:col-span-2 grid gap-6"></div>
+
+                        <div class="md:col-span-2">
                             <label class="mb-2 block text-sm font-medium">Escolha o curso de seu interesse*</label>
                             <label class="flex items-center gap-3 rounded-md border border-gold/40 bg-gold/10 px-4 py-3 cursor-not-allowed">
                                 <input type="checkbox" name="curso" value="IA na Prática do Controle Interno" checked disabled class="h-5 w-5 accent-gold cursor-not-allowed">
@@ -819,6 +827,105 @@
 
         carregarEstados();
 
+        let contatosPrefeitura = [];
+
+        async function carregarContatosPrefeitura() {
+            const municipio = document.getElementById('municipio').value.trim();
+            const uf = document.getElementById('uf').value.trim();
+            const cursoId = document.getElementById('curso_id').value.trim();
+            if (!municipio || !uf) {
+                contatosPrefeitura = [];
+                return;
+            }
+            try {
+                const url = API_URL_CRM + '/api/publico/contatos-prefeitura?municipio=' + encodeURIComponent(municipio) +
+                    '&uf=' + encodeURIComponent(uf) + (cursoId ? '&campanha_id=' + encodeURIComponent(cursoId) : '');
+                const res = await fetch(url);
+                const data = await res.json();
+                contatosPrefeitura = res.ok && data.contatos ? data.contatos : [];
+            } catch (e) {
+                contatosPrefeitura = [];
+            }
+            montarFormulariosExtras();
+        }
+
+        function montarFormulariosExtras() {
+            const qtd = Math.max(1, parseInt(document.getElementById('qtd_participantes').value, 10) || 1);
+            const container = document.getElementById('containerInscritosExtras');
+            container.innerHTML = '';
+            document.getElementById('qtd_participantes').value = qtd;
+
+            for (let i = 2; i <= qtd; i++) {
+                const bloco = document.createElement('div');
+                bloco.className = 'rounded-xl border border-gold/30 bg-navy-foreground/5 p-5 grid gap-4 md:grid-cols-2';
+                const optsContatos = contatosPrefeitura.map(function (c) {
+                    return '<option value="' + c.id + '">' + (c.nome || 'Contato') + '</option>';
+                }).join('');
+                bloco.innerHTML =
+                    '<div class="md:col-span-2 flex flex-wrap items-center justify-between gap-2">' +
+                    '<h4 class="text-sm font-bold text-gold">Participante ' + i + '</h4>' +
+                    (contatosPrefeitura.length ? (
+                        '<label class="text-xs text-navy-foreground/80">Preencher do cadastro: ' +
+                        '<select class="form-select-lp ml-1 rounded border border-navy-foreground/20 bg-[#1e293b] px-2 py-1 text-white ins-preencher" data-ins="' + i + '">' +
+                        '<option value="">— manual —</option>' + optsContatos + '</select></label>'
+                    ) : '') +
+                    '</div>' +
+                    '<div><label class="mb-1 block text-xs font-medium">Nome*</label>' +
+                    '<input type="text" required class="ins-nome w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 py-2 text-sm text-white" data-ins="' + i + '"></div>' +
+                    '<div><label class="mb-1 block text-xs font-medium">E-mail*</label>' +
+                    '<input type="email" required class="ins-email w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 py-2 text-sm text-white" data-ins="' + i + '"></div>' +
+                    '<div><label class="mb-1 block text-xs font-medium">Telefone</label>' +
+                    '<input type="tel" class="ins-tel w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 py-2 text-sm text-white" data-ins="' + i + '"></div>' +
+                    '<div><label class="mb-1 block text-xs font-medium">Cargo</label>' +
+                    '<input type="text" class="ins-cargo w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 py-2 text-sm text-white" data-ins="' + i + '"></div>' +
+                    '<div class="md:col-span-2"><label class="mb-1 block text-xs font-medium">Formação</label>' +
+                    '<input type="text" class="ins-formacao w-full rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-3 py-2 text-sm text-white" data-ins="' + i + '"></div>';
+                container.appendChild(bloco);
+            }
+
+            container.querySelectorAll('.ins-preencher').forEach(function (sel) {
+                sel.addEventListener('change', function () {
+                    const idx = sel.getAttribute('data-ins');
+                    const c = contatosPrefeitura.find(function (x) { return String(x.id) === sel.value; });
+                    if (!c) return;
+                    const card = container.querySelector('[data-ins="' + idx + '"].ins-nome')?.closest('.rounded-xl') || container;
+                    const nomeEl = container.querySelector('.ins-nome[data-ins="' + idx + '"]');
+                    const emailEl = container.querySelector('.ins-email[data-ins="' + idx + '"]');
+                    const telEl = container.querySelector('.ins-tel[data-ins="' + idx + '"]');
+                    const cargoEl = container.querySelector('.ins-cargo[data-ins="' + idx + '"]');
+                    if (nomeEl) nomeEl.value = c.nome || '';
+                    if (emailEl) emailEl.value = (c.emails && c.emails[0]) || '';
+                    if (telEl) telEl.value = (c.telefones && c.telefones[0]) || '';
+                    if (cargoEl) cargoEl.value = (c.cargos && c.cargos[0]) || '';
+                });
+            });
+        }
+
+        document.getElementById('qtd_participantes').addEventListener('change', montarFormulariosExtras);
+        document.getElementById('qtd_participantes').addEventListener('input', montarFormulariosExtras);
+        selectMunicipio.addEventListener('change', carregarContatosPrefeitura);
+
+        function coletarInscritos() {
+            const lista = [{
+                nome: document.getElementById('nome').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                formacao: document.getElementById('formacao').value.trim(),
+                cargo: document.getElementById('cargo').value.trim()
+            }];
+            const qtd = Math.max(1, parseInt(document.getElementById('qtd_participantes').value, 10) || 1);
+            for (let i = 2; i <= qtd; i++) {
+                lista.push({
+                    nome: (document.querySelector('.ins-nome[data-ins="' + i + '"]') || {}).value?.trim() || '',
+                    email: (document.querySelector('.ins-email[data-ins="' + i + '"]') || {}).value?.trim() || '',
+                    telefone: (document.querySelector('.ins-tel[data-ins="' + i + '"]') || {}).value?.trim() || '',
+                    formacao: (document.querySelector('.ins-formacao[data-ins="' + i + '"]') || {}).value?.trim() || '',
+                    cargo: (document.querySelector('.ins-cargo[data-ins="' + i + '"]') || {}).value?.trim() || ''
+                });
+            }
+            return lista.filter(function (ins) { return ins.nome || ins.email; });
+        }
+
         function mostrarFeedback(mensagem, sucesso) {
             const fb = document.getElementById('feedbackInscricao');
             if (!fb) return;
@@ -859,18 +966,30 @@
                 return;
             }
 
+            const inscritosLista = coletarInscritos();
+            if (!inscritosLista.length || !inscritosLista[0].email) {
+                mostrarFeedback('Preencha pelo menos nome e e-mail do responsável.', false);
+                btn.disabled = false;
+                btn.innerHTML = textoOriginal;
+                lucide.createIcons();
+                return;
+            }
+
             const cursoNomeEl = document.querySelector('input[name="curso_selecionado"]');
+            const principal = inscritosLista[0];
             const payload = {
-                nome: document.getElementById('nome').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                telefone: document.getElementById('telefone').value.trim(),
-                formacao: document.getElementById('formacao').value.trim(),
-                cargo: document.getElementById('cargo').value.trim(),
+                nome: principal.nome,
+                email: principal.email,
+                telefone: principal.telefone,
+                formacao: principal.formacao,
+                cargo: principal.cargo,
                 municipio: municipioVal,
                 uf: ufVal,
                 curso_nome: cursoNomeEl ? cursoNomeEl.value : '',
                 curso_id: parseInt(cursoId, 10),
-                modulos_ids: []
+                modulos_ids: [],
+                qtd_inscritos: inscritosLista.length,
+                inscritos: inscritosLista
             };
 
             try {
@@ -888,6 +1007,9 @@
                 captcha.value = '';
                 selectUf.value = UF_PADRAO;
                 carregarMunicipios(UF_PADRAO);
+                document.getElementById('qtd_participantes').value = '1';
+                montarFormulariosExtras();
+                contatosPrefeitura = [];
             } catch (err) {
                 mostrarFeedback(err.message || 'Erro de conexão. Tente novamente em instantes.', false);
             } finally {
