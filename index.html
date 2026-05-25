@@ -548,7 +548,7 @@
                         <input type="hidden" name="curso_id" id="curso_id" value="">
                         <div class="md:col-span-2">
                             <label for="qtd_participantes" class="mb-1 block text-sm font-medium">Quantas pessoas participarão do curso?*</label>
-                            <input type="number" id="qtd_participantes" name="qtd_participantes" min="1" max="30" value="1" required class="w-full max-w-xs rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qtd_participantes" name="qtd_participantes" placeholder="1" autocomplete="off" class="w-full max-w-xs rounded-md border border-navy-foreground/20 bg-navy-foreground/5 px-4 py-3 text-sm text-white outline-none transition focus:border-gold focus:ring-1 focus:ring-gold">
                             <p class="mt-1 text-xs text-navy-foreground/60">A 1ª pessoa é o formulário acima. Se forem mais, preencha os dados de cada participante abaixo.</p>
                         </div>
 
@@ -573,6 +573,14 @@
                                 Enviar meus dados <i data-lucide="send" class="h-5 w-5"></i>
                             </button>
                             <p class="mt-4 text-xs text-navy-foreground/60">Seus dados estão protegidos conosco.</p>
+                        </div>
+
+                        <div class="md:col-span-2 mt-2 rounded-xl bg-gradient-gold px-6 py-8 text-center shadow-gold">
+                            <p class="text-sm font-medium text-navy">Consulte o conteúdo programático do curso antes de imprimir.</p>
+                            <a href="https://drive.google.com/file/d/1y6HPl8eV1tm0kckkYCoKnexFIOJOoeqi/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="mt-5 inline-flex w-full max-w-xl items-center justify-center gap-2 rounded-md border-2 border-white bg-navy px-6 py-3.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-navy/90 md:text-sm">
+                                <i data-lucide="download" class="h-5 w-5 shrink-0"></i>
+                                Baixar folder do curso (PDF)
+                            </a>
                         </div>
 
                     </form>
@@ -717,6 +725,48 @@
 
     </main>
 
+    <footer class="border-t border-border">
+        <div class="bg-gradient-gold px-4 py-10 text-center md:py-12">
+            <p class="mx-auto max-w-2xl text-sm font-medium text-navy">Folder do curso — conteúdo programático para consulta e impressão</p>
+            <a href="https://drive.google.com/file/d/1y6HPl8eV1tm0kckkYCoKnexFIOJOoeqi/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="mx-auto mt-5 inline-flex max-w-2xl items-center justify-center gap-2 rounded-md border-2 border-white bg-navy px-8 py-4 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-navy/90 md:text-sm">
+                <i data-lucide="printer" class="h-5 w-5 shrink-0"></i>
+                Imprimir conteúdos programáticos do curso
+            </a>
+        </div>
+
+        <div class="bg-gradient-navy text-navy-foreground">
+            <div class="mx-auto flex max-w-7xl flex-col items-center gap-10 px-4 py-12 md:flex-row md:items-start md:justify-between md:px-8 md:py-14">
+                <div class="flex max-w-md flex-col items-center text-center md:items-start md:text-left">
+                    <a href="#top" aria-label="Gestão — Início" class="inline-block">
+                        <img src="https://lh3.googleusercontent.com/d/15X1AYe0G-KGxqrqe05n6iTzmH9IUJhY_" alt="Gestão Assessoria e Consultoria" class="h-24 w-auto object-contain brightness-0 invert md:h-28">
+                    </a>
+                    
+                </div>
+
+                <div class="space-y-3 text-center text-sm leading-relaxed md:text-left">
+                    <p class="flex items-center justify-center gap-2 md:justify-start">
+                        <i data-lucide="phone" class="h-4 w-4 shrink-0 text-gold"></i>
+                        <a href="tel:+5551984432097" class="hover:text-gold transition">(51) 98443-2097</a>
+                    </p>
+                    <p class="flex items-center justify-center gap-2 md:justify-start">
+                        <i data-lucide="mail" class="h-4 w-4 shrink-0 text-gold"></i>
+                        <a href="mailto:gestao@gestao.srv.br" class="hover:text-gold transition">gestao@gestao.srv.br</a>
+                    </p>
+                    <p class="flex items-center justify-center gap-2 md:justify-start">
+                        <i data-lucide="globe" class="h-4 w-4 shrink-0 text-gold"></i>
+                        <a href="https://www.gestao.srv.br" target="_blank" rel="noopener noreferrer" class="hover:text-gold transition">www.gestao.srv.br</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-t border-navy-foreground/15 px-4 py-6 text-center md:px-8">
+                <p class="text-xs leading-relaxed text-navy-foreground/75">
+                    Gestão A+ Desenvolvimento Ltda - ME · CNPJ: 18.693.117/0001-63 · R. João Bayer, 744, Petrópolis — Taquara/RS
+                </p>
+            </div>
+        </div>
+    </footer>
+
     <a href="https://wa.me/5551984432097?text=Tenho%20interesse%20no%20curso%20IA%20na%20Pr%C3%A1tica%20do%20Controle%20Interno%20Municipal" target="_blank" rel="noopener noreferrer" aria-label="Falar com a Gestão pelo WhatsApp" class="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full text-white shadow-elegant transition hover:scale-105" style="background-color: #25D366;">
         <i data-lucide="message-circle" class="h-7 w-7"></i>
     </a>
@@ -843,13 +893,21 @@
             montarFormulariosExtras();
         }
 
+        function lerQtdParticipantes() {
+            const raw = document.getElementById('qtd_participantes').value.trim();
+            if (raw === '') return null;
+            const n = parseInt(raw, 10);
+            return Number.isNaN(n) ? null : n;
+        }
+
         function montarFormulariosExtras() {
-            const qtd = Math.max(1, parseInt(document.getElementById('qtd_participantes').value, 10) || 1);
+            const qtd = lerQtdParticipantes();
             const container = document.getElementById('containerInscritosExtras');
             container.innerHTML = '';
-            document.getElementById('qtd_participantes').value = qtd;
+            if (qtd === null || qtd < 2) return;
 
-            for (let i = 2; i <= qtd; i++) {
+            const limite = Math.min(qtd, 30);
+            for (let i = 2; i <= limite; i++) {
                 const bloco = document.createElement('div');
                 bloco.className = 'rounded-xl border border-gold/30 bg-navy-foreground/5 p-5 grid gap-4 md:grid-cols-2';
                 const optsContatos = contatosPrefeitura.map(function (c) {
@@ -907,8 +965,9 @@
                 formacao: document.getElementById('formacao').value.trim(),
                 cargo: document.getElementById('cargo').value.trim()
             }];
-            const qtd = Math.max(1, parseInt(document.getElementById('qtd_participantes').value, 10) || 1);
-            for (let i = 2; i <= qtd; i++) {
+            const qtd = lerQtdParticipantes();
+            if (!qtd || qtd < 1) return lista;
+            for (let i = 2; i <= Math.min(qtd, 30); i++) {
                 lista.push({
                     nome: (document.querySelector('.ins-nome[data-ins="' + i + '"]') || {}).value?.trim() || '',
                     email: (document.querySelector('.ins-email[data-ins="' + i + '"]') || {}).value?.trim() || '',
@@ -960,6 +1019,22 @@
                 return;
             }
 
+            const qtdParticipantes = lerQtdParticipantes();
+            if (qtdParticipantes === null || qtdParticipantes < 1) {
+                mostrarFeedback('Informe quantas pessoas participarão do curso (mínimo 1).', false);
+                btn.disabled = false;
+                btn.innerHTML = textoOriginal;
+                lucide.createIcons();
+                return;
+            }
+            if (qtdParticipantes > 30) {
+                mostrarFeedback('O máximo é 30 participantes por inscrição.', false);
+                btn.disabled = false;
+                btn.innerHTML = textoOriginal;
+                lucide.createIcons();
+                return;
+            }
+
             const inscritosLista = coletarInscritos();
             if (!inscritosLista.length || !inscritosLista[0].email) {
                 mostrarFeedback('Preencha pelo menos nome e e-mail do responsável.', false);
@@ -1001,7 +1076,7 @@
                 captcha.value = '';
                 selectUf.value = UF_PADRAO;
                 carregarMunicipios(UF_PADRAO);
-                document.getElementById('qtd_participantes').value = '1';
+                document.getElementById('qtd_participantes').value = '';
                 montarFormulariosExtras();
                 contatosPrefeitura = [];
             } catch (err) {
